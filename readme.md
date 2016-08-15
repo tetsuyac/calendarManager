@@ -2,9 +2,9 @@
 ===============
 
 ###### installation (osx, linux) modify accordingly in case of windows.
-1. download caseManager.zip from <https://github.com/tetsuyac/calendarManager-0.git>
-1. unzip calendarManager-0.zip
-1. cd calendarManager-0
+1. go to a working folder in shell.
+1. git clone https://github.com/tetsuyac/calendarManager.git
+1. cd calendarManager
 1. bower install
 1. http://localhost/(your_path_to_this_folder)/calendarManager.html
 1. have a fun!
