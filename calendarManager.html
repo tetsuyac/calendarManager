@@ -1,0 +1,155 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>calendarManager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+  <link rel='stylesheet' href='bower_components/fullcalendar/dist/fullcalendar.css'/>
+  <link rel='stylesheet' href='bower_components/fullcalendar-scheduler/dist/scheduler.css'/>
+  <script src='bower_components/jquery/dist/jquery.min.js'></script>
+  <script src='bower_components/moment/min/moment.min.js'></script>
+  <script src='bower_components/fullcalendar/dist/fullcalendar.js'></script>
+  <script src='bower_components/fullcalendar-scheduler/dist/scheduler.js'></script>
+  <script>
+    -function (d, ls, $) {
+      $(d).ready(function () {
+        $('#calendar').fullCalendar({
+          header:              {
+            left:   'title',
+            center: '',
+            right:  'today prev,next,month,basicWeek'
+          },
+          defaultView:         'month',
+          dayClick:            function (date, jsEvent, view) {
+            var today  = {}, apo = {}, now = new Date(), mark;
+            today['y'] = now.getFullYear();
+            today['m'] = now.getMonth() + 1;
+            today['d'] = now.getDate();
+            apo['y']   = date.year();
+            apo['m']   = date.month() + 1;
+            apo['d']   = date.date();
+            mark       = apoMgr.apoToMark(apo);
+            if (apoMgr.isPast(today, apo)) {
+              alert('an appointment is only available for today or future date.');
+            } else if (apoMgr.hasMark(mark)) {
+              alert('an appointment has already been placed on ' + mark + '\n' +
+                'please select up part of this day pane to delete the appointment you made.');
+            } else {
+              alert('setting an appointment on ' + mark);
+              apoMgr.setCalendar(mark, mark, true);
+            }
+          },
+          eventClick:          function (calEvent, jsEvent, view) {
+            if (!this.isContentEditable) {
+              apoMgr.startEditingApo(calEvent, calEvent.id, this);
+            }
+          },
+          schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives'
+        });
+        apoMgr.loadApo('calendar.tc');
+      });
+      var apoMgr = {
+        setCalendar:         function (mark, cont, anew) {
+          $('#calendar').fullCalendar('addEventSource', [{
+            id:     mark,
+            title:  cont,
+            start:  moment(mark),
+            allDay: true /* will make the time show */
+          }]);
+          apoMgr.addCache(mark);
+          apoMgr.listenDeleteApo(mark);
+          if (anew) apoMgr.setLs(mark, mark);
+        },
+        listenDeleteApo:     function (mark) {
+          var deleteApoPane = 'td.fc-day-number[data-date=' + mark + ']';
+          $(deleteApoPane).get(0).addEventListener('click', function () {
+            $('#calendar').fullCalendar('removeEvents', mark);
+            if (apoMgr.hasMark(mark)) {
+              apoMgr.deleteMark(mark);
+            }
+            apoMgr.removeLs(mark);
+          });
+          $(deleteApoPane).get(0).addEventListener('focusout', function (e) {
+            apoMgr.setLs(mark, e.target.text);
+          });
+        },
+        startEditingApo:     function (calEvent, mark, elm) {
+          $(elm).attr('contentEditable', 'true');
+          $(elm).css('border-color', 'red');
+          elm.focus();
+          apoMgr.listenEndEditingApo(calEvent, mark, elm);
+        },
+        listenEndEditingApo: function (calEvent, mark, elm) {
+          var _calEvent = calEvent;
+          $(elm).get(0).addEventListener('focusout', function (e) {
+            apoMgr.endEditingApo(e.target);
+            apoMgr.setLs(mark, e.target.text);
+            _calEvent.title = e.target.text;
+            $('#calendar').fullCalendar('removeEvent', [mark]);
+//          $('#calendar').fullCalendar('updateEvent', _calEvent); // I am not quite sure why this is not necessary..
+          });
+        },
+        endEditingApo:       function (elm) {
+          $(elm).attr('contentEditable', 'false');
+          $(elm).css('border-color', 'inherit');
+        },
+        loadApo:             function (keyHead) {
+          var cache = [], i, mark, apo;
+          for (var key in ls) {
+            if (0 <= (i = key.indexOf(keyHead))) {
+              mark = key.substr(i + keyHead.length);
+              apo  = ls[key];
+              if (!cache.find(function (e) {
+                  return e === mark;
+                })) {
+                apoMgr.setCalendar(mark, ls[key], false);
+                cache.push(mark);
+              } else {
+                apoMgr.removeLs(mark);
+              }
+            }
+          }
+        },
+        hasMark:             function (mark) {
+          return this.marks.has(mark);
+        },
+        deleteMark:          function (mark) {
+          return this.marks.delete(mark);
+        },
+        isSame:              function (apo, pick) {
+          return apo.y === pick.y && apo.m === pick.m && apo.d === pick.d;
+        },
+        isPast:              function (today, pick) {
+          return pick.y < today.y || pick.m < today.m || pick.d < today.d;
+        },
+        apoToMark:           function (apo) {
+          return apo.y + '-' + padZero(apo.m) + '-' + padZero(apo.d);
+          function padZero(n) {
+            return ('0' + n).slice(-2);
+          }
+        },
+        markToApo:           function (mark) { // YYYY-MM-DD
+          var apo = {};
+          apo.y   = Number(mark.substr(0, 4));
+          apo.m   = Number(mark.substr(5, 2));
+          apo.d   = Number(mark.substr(8, 2));
+          return apo;
+        },
+        addCache:            function (mark) {
+          return !this.marks.has(mark) ? this.marks.add(mark) : false;
+        },
+        setLs:               function (mark, cont) {
+          ls.setItem('calendar.tc' + mark, cont);
+        },
+        removeLs:            function (mark) {
+          ls.removeItem('calendar.tc' + mark);
+        },
+        marks:               new Set()
+      };
+    }(document, localStorage, jQuery);
+  </script>
+</head>
+<body>
+<div id='calendar'></div>
+</body>
+</html>

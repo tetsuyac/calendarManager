@@ -1,0 +1,22 @@
+{
+  "name": "calendarManager",
+  "authors": [
+    "Tetsuya Chiba <tetsuyac@chibashoten.com>"
+  ],
+  "description": "",
+  "main": "calendarManager.html",
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "fullcalendar-scheduler": "^1.3.3",
+    "fullcalendar": "^2.9.1"
+  }
+}
