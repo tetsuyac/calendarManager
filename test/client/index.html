@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>calendarManager Mocha Test Runner</title>
+  <link rel='stylesheet' href='../../bower_components/fullcalendar/dist/fullcalendar.css'/>
+  <link rel='stylesheet' href='../../bower_components/fullcalendar-scheduler/dist/scheduler.css'/>
+  <link rel="stylesheet" href="../../public/stylesheets/calendarManager.css">
+  <link rel="stylesheet" href="../../node_modules/mocha/mocha.css">
+  <!--script data-main="../client/main" src="../node_modules/requirejs/require.js"></script-->
+  <script src='../../node_modules/jquery/dist/jquery.min.js'></script>
+  <script src='../../node_modules/moment/min/moment.min.js'></script>
+  <script src='../../bower_components/fullcalendar/dist/fullcalendar.js'></script>
+  <script src='../../bower_components/fullcalendar-scheduler/dist/scheduler.js'></script>
+</head>
+<body>
+<div id="mocha"></div>
+<script src="../../node_modules/mocha/mocha.js"></script>
+<script src='../../node_modules/chai/chai.js'></script>
+<script src="../../node_modules/sinon-chai/lib/sinon-chai.js"></script>
+<script src="../../node_modules/sinon/lib/sinon.js"></script>
+<script>mocha.setup('bdd')</script>
+<!--script src="../../build/client-test.js"></script-->
+<div id='test'><span>CLICK TO RUN TEST</span></div>
+<div id='calendar'></div>
+<script>
+  $(document).ready(function () {
+    $("#test").click(function () {
+      if (!_g.hasTestingDone) {
+        $(this).toggleClass('coral');
+        _g.testing = $(this).hasClass('coral');
+        if (!_g.hasTestingDone && _g.testing) {
+          mocha.run();
+          $(this).toggleClass('coral');
+          _g.testing = $(this).hasClass('coral');
+          $(this).text("TEST DONE");
+          _g.hasTestingDone = true;
+        }
+      }
+    })
+  });
+</script>
+<script src="../../client/globalVars.js"></script>
+<script src="../../client/calendarManager.js"></script>
+<script>
+  _g.testing = _g.hasTestingDone = false;
+  if (window.mochaPhantomJS) {
+    mochaPhantomJS.run();
+  } else {
+    mocha.run();
+  }
+</script>
+<script src="../../test/client/index.js"></script>
+</body>
+</html>
