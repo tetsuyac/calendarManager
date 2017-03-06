@@ -6,7 +6,7 @@
   "description": "",
   "main": "calendarManager.html",
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://github.com/tetsuyac/calendarManager",
   "private": true,
   "ignore": [
     "**/.*",
@@ -16,7 +16,7 @@
     "tests"
   ],
   "dependencies": {
-    "fullcalendar-scheduler": "^1.3.3",
-    "fullcalendar": "^2.9.1"
+    "fullcalendar-scheduler": "1.3.3",
+    "fullcalendar": "2.9.1"
   }
 }
